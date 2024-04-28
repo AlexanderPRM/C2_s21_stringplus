@@ -10,7 +10,7 @@ s21_string.a:
 	ar -rc s21_string.a *.o
 
 test:
-	echo "TODO: run tests"
+	$(CC) $(FLAGS) test.c s21_string.a
 
 clean:
 	rm -rf *.o *.a *.out

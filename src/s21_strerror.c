@@ -10,9 +10,9 @@ char *s21_strerror(int errnum) {
             result = errors[errnum - 1];
         }
     #elif defined(__APPLE__)
-        char *errors = APPLE_MESSAGES;
+        char *errors[] = APPLE_MESSAGES;
         if (1 <= errnum && errnum <= 106) {
-            result = errors[errnum - 1]
+            result = errors[errnum - 1];
         }
     #endif
 
