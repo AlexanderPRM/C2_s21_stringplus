@@ -21,7 +21,7 @@ char *s21_strtok(char *str, const char *delim) {
         return NULL;
     }
 
-    while(is_delimiter(*str, delim)) {
+    while(*str && is_delimiter(*str, delim)) {
         str++;
     }
 
