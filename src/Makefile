@@ -1,16 +1,23 @@
 CC = gcc
 FLAGS = -Wall -Werror -Wextra -std=c11
-SRC = s21_*.c
+ODIR = objs
+CDIR = .
 
+SOURCES = $(wildcard $(CDIR)/s21_*.c)
+OBJECTS = $(patsubst $(CDIR)/%.c,$(ODIR)/%.o,$(SOURCES))
+
+.PHONY: all clean test
 
 all: clean s21_string.a test
 
-s21_string.a:
-	$(CC) $(FLAGS) -c $(SRC)
-	ar -rc s21_string.a *.o
+$(ODIR)/%.o: $(CDIR)/%.c
+	$(CC) $(FLAGS) -c $< -o $@
 
-test:
-	echo "TODO: run tests"
+s21_string.a: $(OBJECTS)
+	ar -rc s21_string.a $(OBJECTS)
+
+test: s21_string.a
+	$(CC) $(FLAGS) test.c s21_string.a
 
 clean:
-	rm -rf *.o *.a *.out
+	rm -rf $(OBJECTS)/*.o *.a *.out
