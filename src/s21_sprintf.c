@@ -40,6 +40,8 @@ void handle_specifier(va_list args, options opts, char *dest, size_t *curr) {
     parse_int(args, opts, buffer);
   } else if (opts.specifier == 'c') {
     parse_char(args, opts, buffer);
+  } else if (opts.specifier == '%') {
+    buffer[0] = '%';
   }
 
   for (size_t i = 0; buffer[i]; i++, (*curr)++) {
