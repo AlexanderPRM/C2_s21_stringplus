@@ -1,6 +1,6 @@
-#include <stdio.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 typedef struct {
   bool left_justify;
@@ -30,7 +30,10 @@ char *get_precision(va_list args, options *opts, char *ptr);
 char *get_length(options *opts, char *ptr);
 
 void parse_int(va_list args, options opts, char *buffer);
-void add_int_to_string(char *dest, options opts, size_t chars_length, size_t num_length, size_t zeroes_for_add, long num, char *num_str);
+void parse_char(va_list args, options opts, char *dest);
+void add_int_to_string(char *dest, options opts, size_t chars_length,
+                       size_t num_length, size_t zeroes_for_add, long num,
+                       char *num_str);
 
 int parse_int_from_ascii(char **str);
 void parse_int_to_ascii(long num, int base, char *dest);

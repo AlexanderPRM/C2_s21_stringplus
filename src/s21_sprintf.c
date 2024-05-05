@@ -1,8 +1,11 @@
-#include <stdarg.h>
+#include <locale.h>
+#include <stdlib.h>
+#include <wchar.h>
 
 #include "s21_string.h"
 
 int s21_sprintf(char *str, const char *format, ...) {
+  setlocale(LC_ALL, "");
   va_list args;
   va_start(args, format);
   size_t curr = 0;
@@ -36,11 +39,37 @@ void handle_specifier(va_list args, options opts, char *dest, size_t *curr) {
   if (opts.specifier == 'd' || opts.specifier == 'i') {
     parse_int(args, opts, buffer);
   } else if (opts.specifier == 'c') {
-
+    parse_char(args, opts, buffer);
   }
 
   for (size_t i = 0; buffer[i]; i++, (*curr)++) {
     dest[*curr] = buffer[i];
+  }
+}
+
+void parse_char(va_list args, options opts, char *dest) {
+  size_t curr = 0;
+  size_t char_length = opts.length == 'l' ? 2 : 1;
+  if (!opts.left_justify && opts.width > char_length) {
+    for (size_t i = opts.width - char_length; i > 0; i--) {
+      dest[curr++] = ' ';
+    }
+  }
+  if (opts.length == 'l') {
+    char buff[MB_CUR_MAX];
+    s21_memset(buff, '\0', MB_CUR_MAX);
+    wchar_t ch = va_arg(args, wchar_t);
+    wcrtomb(buff, ch, NULL);
+    for (size_t i = 0; buff[i]; i++) dest[curr++] = buff[i];
+  } else {
+    char ch = va_arg(args, int);
+    dest[curr++] = ch;
+  }
+
+  if (opts.left_justify && opts.width > char_length) {
+    for (size_t i = opts.width - char_length; i > 0; i--) {
+      dest[curr++] = ' ';
+    }
   }
 }
 
