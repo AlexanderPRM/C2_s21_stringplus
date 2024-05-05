@@ -189,7 +189,7 @@ int parse_int_from_ascii(char **str) {
 }
 
 void parse_int_to_ascii(long num, int base, char *dest) {
-  char buffer[BUFFER_SIZE];
+  char buffer[BUFFER_SIZE] = "\0";
   size_t curr = BUFFER_SIZE - 1;
   char *digits = "0123456789abcdef";
   bool negative = num < 0;
