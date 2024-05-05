@@ -31,9 +31,12 @@ int s21_sprintf(char *str, const char *format, ...) {
 }
 
 void handle_specifier(va_list args, options opts, char *dest, size_t *curr) {
-  char buffer[BUFFER_SIZE];
+  char buffer[BUFFER_SIZE] = "\0";
+
   if (opts.specifier == 'd' || opts.specifier == 'i') {
     parse_int(args, opts, buffer);
+  } else if (opts.specifier == 'c') {
+
   }
 
   for (size_t i = 0; buffer[i]; i++, (*curr)++) {
