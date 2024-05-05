@@ -6,9 +6,10 @@ int s21_sprintf(char *str, const char *format, ...) {
   va_list args;
   va_start(args, format);
   size_t curr = 0;
-  for (char *ptr = (char *)format; *ptr; ptr++) {
+  while (*format) {
+    char *ptr = (char *)format;
     if (*ptr != '%') {
-      str[curr++] = *ptr;
+      str[curr++] = *ptr++;
     } else {
       ptr++;
       options opts = {false, false, false, false, false,
@@ -22,9 +23,9 @@ int s21_sprintf(char *str, const char *format, ...) {
       opts.specifier = *ptr++;
       handle_specifier(args, opts, str, &curr);
     }
-    printf("yes\n");
+    format = ptr;
   }
-
+  str[curr] = '\0';
   va_end(args);
   return 1;
 }
