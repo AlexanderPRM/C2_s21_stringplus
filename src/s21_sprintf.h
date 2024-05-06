@@ -31,6 +31,9 @@ char *get_length(options *opts, char *ptr);
 
 void parse_int(va_list args, options opts, char *buffer);
 void parse_char(va_list args, options opts, char *dest);
+void parse_string(va_list args, options opts, char *dest);
+
+
 void add_int_to_string(char *dest, options opts, size_t chars_length,
                        size_t num_length, size_t zeroes_for_add, long num,
                        char *num_str);

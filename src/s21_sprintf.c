@@ -1,11 +1,11 @@
 #include <locale.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <wchar.h>
 
 #include "s21_string.h"
 
 int s21_sprintf(char *str, const char *format, ...) {
-  setlocale(LC_ALL, "");
   va_list args;
   va_start(args, format);
   size_t curr = 0;
@@ -30,7 +30,7 @@ int s21_sprintf(char *str, const char *format, ...) {
   }
   str[curr] = '\0';
   va_end(args);
-  return 1;
+  return curr;
 }
 
 void handle_specifier(va_list args, options opts, char *dest, size_t *curr) {
@@ -40,6 +40,8 @@ void handle_specifier(va_list args, options opts, char *dest, size_t *curr) {
     parse_int(args, opts, buffer);
   } else if (opts.specifier == 'c') {
     parse_char(args, opts, buffer);
+  } else if (opts.specifier == 's') {
+    parse_string(args, opts, buffer);
   } else if (opts.specifier == '%') {
     buffer[0] = '%';
   }
@@ -70,6 +72,42 @@ void parse_char(va_list args, options opts, char *dest) {
 
   if (opts.left_justify && opts.width > char_length) {
     for (size_t i = opts.width - char_length; i > 0; i--) {
+      dest[curr++] = ' ';
+    }
+  }
+}
+
+void parse_string(va_list args, options opts, char *dest) {
+  char str[BUFFER_SIZE] = "\0";
+  if (opts.length == 'l') {
+    wchar_t *wstr = va_arg(args, wchar_t *);
+    size_t wstrlen = wcslen(wstr);
+    char buffer[MB_CUR_MAX * wstrlen + 1];
+    s21_memset(buffer, '\0', MB_CUR_MAX * wstrlen + 1);
+    wcstombs(buffer, wstr, MB_CUR_MAX * wstrlen + 1);
+    for (size_t i = 0; buffer[i]; i++) str[i] = buffer[i];
+  } else {
+    char *temp = va_arg(args, char *);
+    s21_strncpy(str, temp, BUFFER_SIZE);
+  }
+  size_t temp_length = s21_strlen((char *)str);
+  size_t str_length = temp_length > opts.precision && opts.precision_set
+                          ? opts.precision
+                          : temp_length;
+
+  size_t curr = 0;
+  if (!opts.left_justify && opts.width > str_length) {
+    for (size_t i = opts.width - str_length; i > 0; i--) {
+      dest[curr++] = ' ';
+    }
+  }
+
+  for (size_t i = 0; i < str_length; i++) {
+    dest[curr++] = str[i];
+  }
+
+  if (opts.left_justify && opts.width > str_length) {
+    for (size_t i = opts.width - str_length; i > 0; i--) {
       dest[curr++] = ' ';
     }
   }
