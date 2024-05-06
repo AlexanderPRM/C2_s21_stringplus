@@ -1,5 +1,3 @@
-#include <locale.h>
-#include <stdarg.h>
 #include <stdlib.h>
 #include <wchar.h>
 
@@ -35,9 +33,10 @@ int s21_sprintf(char *str, const char *format, ...) {
 
 void handle_specifier(va_list args, options opts, char *dest, size_t *curr) {
   char buffer[BUFFER_SIZE] = "\0";
-
   if (opts.specifier == 'd' || opts.specifier == 'i') {
     parse_int(args, opts, buffer);
+  } else if (opts.specifier == 'u') {
+    parse_unsigned_int(args, opts, buffer);
   } else if (opts.specifier == 'c') {
     parse_char(args, opts, buffer);
   } else if (opts.specifier == 's') {
@@ -120,7 +119,7 @@ void parse_int(va_list args, options opts, char *dest) {
       num = va_arg(args, long);
       break;
     case 'h':
-      num = (long)va_arg(args, long);
+      num = va_arg(args, long);
       num = (short int)num;
       break;
     default:
@@ -150,6 +149,37 @@ void parse_int(va_list args, options opts, char *dest) {
                     number);
 }
 
+void parse_unsigned_int(va_list args, options opts, char *dest) {
+  unsigned long num;
+  switch (opts.length) {
+    case 'l':
+      num = va_arg(args, unsigned long);
+      break;
+    case 'h':
+      num = va_arg(args, unsigned long);
+      num = (unsigned short int)num;
+      break;
+    default:
+      num = (unsigned long)va_arg(args, unsigned int);
+      break;
+  }
+
+  char number[BUFFER_SIZE] = "\0";
+  parse_int_to_ascii(num, 10, number);
+  size_t chars_length = 0;
+  size_t num_length = s21_strlen(number);
+  size_t zeroes_for_add = 0;
+  chars_length += num_length;
+  if (opts.precision_set && opts.precision > num_length) {
+    zeroes_for_add = opts.precision - num_length;
+  } else if (opts.set_zeroes && opts.width > chars_length) {
+    zeroes_for_add = opts.width - chars_length;
+  }
+  chars_length += zeroes_for_add;
+  add_unsigned_int_to_string(dest, opts, chars_length, num_length, zeroes_for_add,
+                    number);
+}
+
 void add_int_to_string(char *dest, options opts, size_t chars_length,
                        size_t num_length, size_t zeroes_for_add, long num,
                        char *num_str) {
@@ -171,6 +201,34 @@ void add_int_to_string(char *dest, options opts, size_t chars_length,
   } else if (num < 0) {
     dest[curr++] = '-';
     num_str++;
+  }
+
+  for (size_t i = 0; i < zeroes_for_add; i++) {
+    dest[curr++] = '0';
+  }
+  for (size_t i = 0; i < num_length; i++) {
+    dest[curr++] = num_str[i];
+  }
+
+  if (opts.left_justify && !opts.set_zeroes) {
+    if (chars_length < opts.width) {
+      for (size_t i = opts.width - chars_length; i > 0; i--) {
+        dest[curr++] = ' ';
+      }
+    }
+  }
+}
+
+void add_unsigned_int_to_string(char *dest, options opts, size_t chars_length,
+                       size_t num_length, size_t zeroes_for_add, char *num_str) {
+  size_t curr = 0;
+
+  if (!opts.left_justify && !opts.set_zeroes) {
+    if (chars_length < opts.width) {
+      for (size_t i = opts.width - chars_length; i > 0; i--) {
+        dest[curr++] = ' ';
+      }
+    }
   }
 
   for (size_t i = 0; i < zeroes_for_add; i++) {
