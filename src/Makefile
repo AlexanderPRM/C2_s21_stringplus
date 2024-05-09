@@ -23,7 +23,10 @@ s21_string.a: $(OBJECTS)
 test: fclean s21_string.a
 	$(CC) $(FLAGS) -o test test.c s21_string.a -lcheck -lm -lsubunit -fprofile-arcs -ftest-coverage
 	./test
-	
+
+local: clean s21_string.a
+	$(CC) $(FLAGS) local.c s21_string.a -lm
+
 
 clean:
 	rm -rf $(OBJECTS)/*.o *.a *.out

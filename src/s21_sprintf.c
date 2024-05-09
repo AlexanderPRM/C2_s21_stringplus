@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <wchar.h>
+#include <math.h>
 
 #include "s21_string.h"
 
@@ -41,6 +42,8 @@ void handle_specifier(va_list args, options opts, char *dest, size_t *curr) {
     parse_char(args, opts, buffer);
   } else if (opts.specifier == 's') {
     parse_string(args, opts, buffer);
+  } else if (opts.specifier == 'f') {
+    parse_float(args, opts, buffer);
   } else if (opts.specifier == '%') {
     buffer[0] = '%';
   }
@@ -48,6 +51,35 @@ void handle_specifier(va_list args, options opts, char *dest, size_t *curr) {
   for (size_t i = 0; buffer[i]; i++, (*curr)++) {
     dest[*curr] = buffer[i];
   }
+}
+
+void parse_float(va_list args, options opts, char *dest) {
+  long double num;
+  if (opts.length == 'L') {
+    num = va_arg(args, long double);
+  } else {
+    num = va_arg(args, double);
+  }
+  if (!opts.precision_set) {
+    opts.precision = 6;
+  }
+  char number_in_str[BUFFER_SIZE] = "\0";
+  parse_double_to_str(number_in_str, num, opts.precision);
+  size_t num_length = s21_strlen(number_in_str);
+  size_t zeroes_for_add = 0;
+  size_t chars_length = 0;
+  if ((num >= 0 && (opts.space || opts.with_sign)) || num < 0) {
+    chars_length = 1;
+  }
+  if (num < 0) {
+    num_length--;
+  }
+  chars_length += num_length;
+  if (opts.set_zeroes && opts.width > chars_length) {
+    zeroes_for_add = opts.width - chars_length;
+  }
+  chars_length += zeroes_for_add;
+  add_double_to_string(dest, opts, chars_length, num_length, zeroes_for_add, num, number_in_str);
 }
 
 void parse_char(va_list args, options opts, char *dest) {
@@ -182,7 +214,7 @@ void parse_unsigned_int(va_list args, options opts, char *dest) {
 
 void add_int_to_string(char *dest, options opts, size_t chars_length,
                        size_t num_length, size_t zeroes_for_add, long num,
-                       char *num_str) {
+                       char *num_str){
   size_t curr = 0;
   if (num >= 0 && opts.space && !opts.with_sign) {
     dest[curr++] = ' ';
@@ -219,6 +251,50 @@ void add_int_to_string(char *dest, options opts, size_t chars_length,
   }
 }
 
+void add_double_to_string(char *dest, options opts, size_t chars_length,
+                       size_t num_length, size_t zeroes_for_add, double num,
+                       char *num_str) {
+  size_t curr = 0;
+  if (num < 0 && opts.width > num_length && opts.set_zeroes) {
+    zeroes_for_add = opts.width - num_length;
+  }
+
+  if (num >= 0 && opts.space && !opts.with_sign) {
+    dest[curr++] = ' ';
+  }
+
+  if (!opts.left_justify && !opts.set_zeroes) {
+    if (chars_length < opts.width) {
+      for (size_t i = opts.width - chars_length; i > 0; i--) {
+        dest[curr++] = ' ';
+      }
+    }
+  }
+
+  if (num >= 0 && opts.with_sign) {
+    dest[curr++] = '+';
+  } else if (num < 0) {
+    dest[curr++] = '-';
+    num_str++;
+  }
+
+  for (size_t i = 0; i < zeroes_for_add; i++) {
+    dest[curr++] = '0';
+  }
+  for (size_t i = 0; i < num_length; i++) {
+    dest[curr++] = num_str[i];
+  }
+
+  if (opts.left_justify && !opts.set_zeroes) {
+    if (chars_length < opts.width) {
+      for (size_t i = opts.width - chars_length; i > 0; i--) {
+        dest[curr++] = ' ';
+      }
+    }
+  }
+}
+
+
 void add_unsigned_int_to_string(char *dest, options opts, size_t chars_length,
                        size_t num_length, size_t zeroes_for_add, char *num_str) {
   size_t curr = 0;
@@ -245,6 +321,33 @@ void add_unsigned_int_to_string(char *dest, options opts, size_t chars_length,
       }
     }
   }
+}
+
+void parse_double_to_str(char *dest, double num, int decimal_places) {
+    int curr = 0;
+    int integer_part = (int)num;
+    long double fractional_part = num - (long double)integer_part;
+
+    if (num < 0) {
+        dest[curr++] = '-';
+        integer_part = -integer_part;
+        fractional_part = -fractional_part;
+    }
+
+    parse_int_to_ascii(num, 10, dest);
+    curr = s21_strlen(dest);
+    for (int i = 0; i < decimal_places; i++) {
+        fractional_part *= 10;
+    }
+
+    long fractional_part_as_int = (long)round(fractional_part);
+
+    if (fractional_part_as_int > 0) {
+      dest[curr++] = '.';
+      char fractional_part_in_char[BUFFER_SIZE] = "\0";
+      parse_int_to_ascii(fractional_part_as_int, 10, fractional_part_in_char);
+      for (size_t i = 0; fractional_part_in_char[i]; i++, curr++) dest[curr] = fractional_part_in_char[i];
+    }
 }
 
 bool get_flag(options *opts, char *ptr) {
