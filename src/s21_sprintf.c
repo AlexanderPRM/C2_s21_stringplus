@@ -325,7 +325,7 @@ void add_unsigned_int_to_string(char *dest, options opts, size_t chars_length,
 
 void parse_double_to_str(char *dest, double num, int decimal_places) {
     int curr = 0;
-    int integer_part = (int)num;
+    long integer_part = (long)num;
     long double fractional_part = num - (long double)integer_part;
 
     if (num < 0) {
