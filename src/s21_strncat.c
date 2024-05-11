@@ -6,7 +6,7 @@ char *s21_strncat(char *dest, const char *src, size_t n) {
     ptr++;
   }
 
-  for (size_t cnt = 0; src[cnt] != '\0' && cnt < n; cnt++) {
+  for (size_t cnt = 0; src[cnt] && cnt < n; cnt++) {
     *ptr++ = src[cnt];
   }
   return dest;
