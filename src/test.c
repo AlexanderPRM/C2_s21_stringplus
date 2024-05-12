@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "s21_sscanf.h"
 #include "s21_string.h"
 
 // Sprintf functions
@@ -236,6 +237,46 @@ Suite *s21_sprintf_suite() {
   suite_add_tcase(s, sprintf_int());
   suite_add_tcase(s, sprintf_float());
   suite_add_tcase(s, sprintf_uint());
+  return s;
+}
+
+// Scanf tests
+
+START_TEST(test_sscanf) {
+  char res[BUFFER_SIZE] = "\0";
+  int first, second, third;
+  unsigned int uint;
+  s21_sscanf("test 1 2 100000 -1000", "%s %hd %li %u %d", res, &first, &second,
+             &uint, &third);
+  ck_assert_str_eq(res, "test");
+  ck_assert_int_eq(first, 1);
+  ck_assert_int_eq(second, 2);
+  ck_assert_int_eq(uint, 100000);
+  ck_assert_int_eq(third, -1000);
+
+  float floating;
+  s21_sscanf("test1234jfsajf12l3 1.23", "%s %f", res, &floating);
+  ck_assert_str_eq(res, "test1234jfsajf12l3");
+  ck_assert_double_eq(floating, (float)1.23);
+
+  int hex;
+  s21_sscanf("0x12345678", "%x", &hex);
+  ck_assert_int_eq(hex, 0x12345678);
+
+  int pointer_address;
+  s21_sscanf("0x1ff23", "%p", &pointer_address);
+  ck_assert_int_eq(pointer_address, 0x1ff23);
+}
+
+TCase *sscanf_string() {
+  TCase *tc = tcase_create("Sscanf string test.");
+  tcase_add_test(tc, test_sscanf);
+  return tc;
+}
+
+Suite *s21_sscanf_suite() {
+  Suite *s = suite_create("Sscanf Functions");
+  suite_add_tcase(s, sscanf_string());
   return s;
 }
 
@@ -743,6 +784,7 @@ int main() {
   int number_failed = 0;
   Suite *string_tests[] = {
       s21_sprintf_suite(),
+      s21_sscanf_suite(),
       s21_mem_functions(),
       s21_str_functions(),
       s21_str_processing_functions(),

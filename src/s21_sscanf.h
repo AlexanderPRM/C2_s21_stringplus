@@ -4,8 +4,8 @@
 #include <limits.h>
 #include <math.h>
 #include <stdarg.h>
-
-#include "s21_string.h"
+#include <stdbool.h>
+#include <stdio.h>
 
 #define spec_unknown '?'
 

@@ -12,9 +12,9 @@ TST_LIBS = $(shell pkg-config --cflags --libs check)
 GCOVFLAGS = -fprofile-arcs -ftest-coverage
 
 
-.PHONY: all clean test
+.PHONY: all clean test gcov_report
 
-all: clean s21_string.a test
+all: clean s21_string.a
 
 $(ODIR)/%.o: $(CDIR)/%.c
 	$(CC) $(FLAGS) -c $< -o $@

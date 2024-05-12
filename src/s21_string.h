@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "s21_sprintf.h"
+#include "s21_sscanf.h"
 
 #define BUFFER_SIZE 4096
 
