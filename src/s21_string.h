@@ -2,6 +2,8 @@
 
 #include "s21_sprintf.h"
 
+#define BUFFER_SIZE 4096
+
 /* Memory functions */
 void *s21_memchr(const void *str, int c, size_t n);
 int s21_memcmp(const void *str1, const void *str2, size_t n);
@@ -20,6 +22,10 @@ char *s21_strpbrk(const char *str1, const char *str2);
 char *s21_strrchr(const char *str, int c);
 char *s21_strstr(const char *haystack, const char *needle);
 char *s21_strtok(char *str, const char *delim);
+void *s21_to_upper(const char *str);
+void *s21_to_lower(const char *str);
+void *s21_insert(const char *src, const char *str, size_t start_index);
+void *s21_trim(const char *src, const char *trim_chars);
 
 /* Errors */
 #define EPERM 1   /* Operation not permitted */
@@ -192,6 +198,7 @@ char *s21_strtok(char *str, const char *delim);
         "Exec format error",                   /* ENOEXEC */                   \
         "Bad file number",                     /* EBADF */                     \
         "No child processes",                  /* ECHILD */                    \
+        "Try again",                           /* EAGAIN */                    \
         "Out of memory",                       /* ENOMEM */                    \
         "Permission denied",                   /* EACCES */                    \
         "Bad address",                         /* EFAULT */                    \
@@ -238,6 +245,7 @@ char *s21_strtok(char *str, const char *delim);
         "No anode",                      /* ENOANO */                          \
         "Invalid request code",          /* EBADRQC */                         \
         "Invalid slot",                  /* EBADSLT */                         \
+        "Resource deadlock would occur", /* EDEADLK */                         \
         "Bad font file format",          /* EBFONT */                          \
         "Device not a stream",           /* ENOSTR */                          \
         "No data available",             /* ENODATA */                         \
@@ -592,7 +600,41 @@ char *s21_strtok(char *str, const char *delim);
 
 #define APPLE_MESSAGES                                                         \
   {                                                                            \
-    "Resource temporarily unavailable",  /* EAGAIN */                          \
+    "Operation not permitted",                 /* EPERM */                     \
+        "No such file or directory",           /* ENOENT */                    \
+        "No such process",                     /* ESRCH */                     \
+        "Interrupted system call",             /* EINTR */                     \
+        "I/O error",                           /* EIO */                       \
+        "No such device or address",           /* ENXIO */                     \
+        "Argument list too long",              /* E2BIG */                     \
+        "Exec format error",                   /* ENOEXEC */                   \
+        "Bad file number",                     /* EBADF */                     \
+        "No child processes",                  /* ECHILD */                    \
+        "Try again",                           /* EAGAIN */                    \
+        "Out of memory",                       /* ENOMEM */                    \
+        "Permission denied",                   /* EACCES */                    \
+        "Bad address",                         /* EFAULT */                    \
+        "Block device required",               /* ENOTBLK */                   \
+        "Device or resource busy",             /* EBUSY */                     \
+        "File exists",                         /* EEXIST */                    \
+        "Cross-device link",                   /* EXDEV */                     \
+        "No such device",                      /* ENODEV */                    \
+        "Not a directory",                     /* ENOTDIR */                   \
+        "Is a directory",                      /* EISDIR */                    \
+        "Invalid argument",                    /* EINVAL */                    \
+        "File table overflow",                 /* ENFILE */                    \
+        "Too many open files",                 /* EMFILE */                    \
+        "Not a typewriter",                    /* ENOTTY */                    \
+        "Text file busy",                      /* ETXTBSY */                   \
+        "File too large",                      /* EFBIG */                     \
+        "No space left on device",             /* ENOSPC */                    \
+        "Illegal seek",                        /* ESPIPE */                    \
+        "Read-only file system",               /* EROFS */                     \
+        "Too many links",                      /* EMLINK */                    \
+        "Broken pipe",                         /* EPIPE */                     \
+        "Math argument out of domain of func", /* EDOM */                      \
+        "Math result not representable",       /* ERANGE */                    \
+        "Resource temporarily unavailable",    /* EAGAIN */                    \
         "Operation would block",         /* EWOULDBLOCK, synonym for EAGAIN */ \
         "Operation now in progress",     /* EINPROGRESS */                     \
         "Operation already in progress", /* EALREADY */                        \

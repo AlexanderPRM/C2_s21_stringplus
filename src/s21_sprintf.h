@@ -19,7 +19,6 @@ typedef struct {
 
 #define ZERO_NUMBER_IN_ASCII 48
 #define NINE_NUMBER_IN_ASCII 57
-#define BUFFER_SIZE 4096
 
 int s21_sprintf(char *str, const char *format, ...);
 void handle_specifier(va_list args, options opts, char *dest, size_t *curr);
@@ -39,9 +38,11 @@ void add_int_to_string(char *dest, options opts, size_t chars_length,
                        size_t num_length, size_t zeroes_for_add, long num,
                        char *num_str);
 void add_unsigned_int_to_string(char *dest, options opts, size_t chars_length,
-                       size_t num_length, size_t zeroes_for_add, char *num_str);
+                                size_t num_length, size_t zeroes_for_add,
+                                char *num_str);
 void add_double_to_string(char *dest, options opts, size_t chars_length,
-                       size_t num_length, size_t zeroes_for_add, double num, char *num_str);
+                          size_t num_length, size_t zeroes_for_add, double num,
+                          char *num_str);
 
 void parse_double_to_str(char *dest, double num, int decimal_places);
 
