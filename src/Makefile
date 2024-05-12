@@ -8,6 +8,10 @@ TEST_OUT=./test
 SOURCES = $(wildcard $(CDIR)/s21_*.c)
 OBJECTS = $(patsubst $(CDIR)/%.c,$(ODIR)/%.o,$(SOURCES))
 
+TST_LIBS = $(shell pkg-config --cflags --libs check)
+GCOVFLAGS = -fprofile-arcs -ftest-coverage
+
+
 .PHONY: all clean test
 
 all: clean s21_string.a test
@@ -21,8 +25,14 @@ s21_string.a: $(OBJECTS)
 	rm -rf $(OBJECTS)
 
 test: fclean s21_string.a
-	$(CC) $(FLAGS) -o test test.c s21_string.a -lcheck -lm -lsubunit -fprofile-arcs -ftest-coverage
+	$(CC) $(FLAGS) -o test test.c s21_string.a -lcheck -lm -lsubunit
 	./test
+
+gcov_report: fclean s21_string.a
+	$(CC) $(FLAGS) $(GCOVFLAGS) test.c s21_*.c s21_string.a -o report.out $(TST_LIBS)
+	./report.out
+	lcov -t "report" -o report.info -c -d .
+	genhtml -o ./report report.info
 
 local: clean s21_string.a
 	$(CC) $(FLAGS) local.c s21_string.a -lm
