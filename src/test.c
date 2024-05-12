@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 #include "s21_sscanf.h"
 #include "s21_string.h"
@@ -246,8 +247,8 @@ START_TEST(test_sscanf) {
   char res[BUFFER_SIZE] = "\0";
   int first, second, third;
   unsigned int uint;
-  s21_sscanf("test 1 2 100000 -1000", "%s %hd %li %u %d", res, &first, &second,
-             &uint, &third);
+  s21_sscanf("test 1 2 100000 -1000", "%s %hd %li %u %d %li", res, &first,
+             &second, &uint, &third);
   ck_assert_str_eq(res, "test");
   ck_assert_int_eq(first, 1);
   ck_assert_int_eq(second, 2);
@@ -255,17 +256,37 @@ START_TEST(test_sscanf) {
   ck_assert_int_eq(third, -1000);
 
   float floating;
-  s21_sscanf("test1234jfsajf12l3 1.23", "%s %f", res, &floating);
+  s21_sscanf("test1234jfsajf12l3 1.23%", "%20s %f%%", res, &floating);
   ck_assert_str_eq(res, "test1234jfsajf12l3");
   ck_assert_double_eq(floating, (float)1.23);
 
-  int hex;
-  s21_sscanf("0x12345678", "%x", &hex);
+  int hex, hex2;
+  s21_sscanf("0x12345678 0X123412", "%x %X", &hex, &hex2);
   ck_assert_int_eq(hex, 0x12345678);
+  ck_assert_int_eq(hex2, 0x123412);
+
+  int octal;
+  s21_sscanf("+104129412", "+%o", &octal);
+  ck_assert_int_eq(octal, 4362);
 
   int pointer_address;
   s21_sscanf("0x1ff23", "%p", &pointer_address);
   ck_assert_int_eq(pointer_address, 0x1ff23);
+
+  float shortest_repr;
+  s21_sscanf("123.31410000", "%g", &shortest_repr);
+  ck_assert_float_eq(shortest_repr, 123.3141);
+
+  int scientific;
+  s21_sscanf("141294.123e+03", "%e", &scientific);
+  ck_assert_int_eq(scientific, 1292287907);
+
+  s21_sscanf("-1020410312 41204092", "%i %-*i", &first, 10, &second);
+  ck_assert_int_eq(first, -1020410312);
+  ck_assert_int_eq(second, 2);
+
+  s21_sscanf("0000", "%3i", &first);
+  ck_assert_int_eq(first, 0);
 }
 
 TCase *sscanf_string() {
